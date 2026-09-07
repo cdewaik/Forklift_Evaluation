@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forklift Operator Evaluation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #122150;
+    --navy-700: #1b2f6b;
+    --royal: #2540bf;
+    --royal-700: #1c33a0;
+    --sky: #eaf0fb;
+    --sky-line: #d8e2f6;
+    --paper: #f4f7fc;
+    --surface: #ffffff;
+    --line: #dde4f1;
+    --ink: #1b2333;
+    --muted: #5a6479;
+    --green: #2f8f5b;
+    --amber: #b8860b;
+    --red: #c0392b;
+    --shadow: 0 1px 2px rgba(18,33,80,.05), 0 8px 22px rgba(18,33,80,.06);
+    --radius: 11px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: "Source Sans 3", system-ui, sans-serif; background: var(--paper); color: var(--ink); line-height: 1.5; }
+  a { color: var(--royal); }
+
+  header.topbar { background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: rgba(18,33,80,.04) 0 1px 0, rgba(18,33,80,.04) 0 6px 18px; position: sticky; top: 0; z-index: 50; }
+  .topbar::before { content: ""; display: block; height: 4px; background: linear-gradient(90deg, var(--navy), var(--royal)); }
+  .topbar-inner { max-width: 900px; margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 15px; flex: 1 1 auto; min-width: 240px; }
+  .brand img.mark { height: 46px; width: auto; display: block; }
+  .brand .wordmark { line-height: 1.05; }
+  .brand .wordmark .co { font-family: "Source Serif 4", Georgia, serif; font-weight: 700; font-size: 1.32rem; letter-spacing: .04em; text-transform: uppercase; color: var(--navy); }
+  .brand .wordmark .hub { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--royal); font-weight: 600; margin-top: 3px; }
+
+  .announce { max-width: 900px; margin: 26px auto 0; padding: 0 28px; }
+  .announce-card { display: flex; gap: 16px; align-items: flex-start; background: var(--sky); border-left: 4px solid var(--royal); border-radius: var(--radius); padding: 18px 22px; }
+  .announce-card .badge { font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; background: var(--royal); color: #fff; padding: 5px 10px; border-radius: 5px; font-weight: 600; flex: 0 0 auto; margin-top: 1px; }
+  .announce-card .body strong { display: block; font-size: 1.04rem; margin-bottom: 4px; color: var(--navy); font-family: "Source Serif 4", Georgia, serif; font-weight: 600; }
+  .announce-card .body span { font-size: .92rem; color: var(--muted); }
+
+  .lang-toggle { display: flex; gap: 8px; margin-top: 12px; }
+  .lang-btn {
+    padding: 6px 14px; border-radius: 999px; border: 1px solid var(--sky-line); background: #fff;
+    color: var(--muted); font-family: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; transition: .15s;
+  }
+  .lang-btn.active { background: var(--royal); border-color: var(--royal); color: #fff; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 30px 28px 70px; }
+
+  .section-head { display: flex; align-items: baseline; gap: 14px; margin: 34px 0 16px; }
+  .section-head .num { font-size: .82rem; color: var(--royal); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .section-head h2 { font-family: "Source Serif 4", Georgia, serif; font-weight: 700; font-size: 1.3rem; letter-spacing: .005em; color: var(--navy); }
+  .section-head .rule { flex: 1 1 0; height: 1px; background: var(--line); }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px; }
+
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label.field-label { display: block; font-size: .85rem; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .field label.field-label .req { color: var(--red); }
+  .field input[type=text], .field input[type=date] {
+    width: 100%; max-width: 420px; padding: 10px 14px; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--paper); color: var(--ink); font-family: inherit; font-size: .95rem; transition: .15s;
+  }
+  .field input:focus { outline: none; border-color: var(--royal); background: #fff; box-shadow: 0 0 0 3px rgba(37,64,191,.12); }
+
+  .item-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .item-row:last-child { border-bottom: none; }
+  .item-row .item-label { font-size: .95rem; color: var(--ink); flex: 1 1 auto; }
+  .item-row .item-num { color: var(--muted); font-size: .78rem; margin-right: 6px; font-variant-numeric: tabular-nums; }
+
+  .item-controls { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+
+  .audio-btn {
+    flex: 0 0 auto; width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--royal); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; padding: 0; transition: .15s;
+  }
+  .audio-btn:hover { background: var(--sky); border-color: var(--sky-line); }
+  .audio-btn svg { width: 16px; height: 16px; }
+  .audio-btn.playing { background: var(--royal); border-color: var(--royal); color: #fff; }
+
+  .pill-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 0 0 auto; }
+  .pill-group input[type=radio] { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .pill-group label {
+    cursor: pointer; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--paper); font-size: .82rem; font-weight: 600; color: var(--muted);
+    transition: .15s; user-select: none; white-space: nowrap;
+  }
+  .pill-group input:checked + label.pill-good { background: #e5f5ec; border-color: var(--green); color: var(--green); }
+  .pill-group input:checked + label.pill-fair { background: #fdf3e2; border-color: var(--amber); color: var(--amber); }
+  .pill-group input:checked + label.pill-poor { background: #fbe9e7; border-color: var(--red); color: var(--red); }
+  .pill-group input:checked + label.pill-na { background: var(--sky); border-color: var(--sky-line); color: var(--navy); }
+  .pill-group input:focus-visible + label { outline: 2px solid var(--royal); outline-offset: 2px; }
+
+  .checkbox-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; }
+  .checkbox-row input { width: 18px; height: 18px; accent-color: var(--royal); }
+  .checkbox-row label { font-size: .95rem; }
+
+  .submit-bar { display: flex; align-items: center; gap: 16px; margin-top: 30px; }
+  button#submitBtn {
+    background: var(--royal); color: #fff; border: none; border-radius: 999px; padding: 13px 30px;
+    font-family: inherit; font-size: .95rem; font-weight: 600; cursor: pointer; transition: .15s;
+  }
+  button#submitBtn:hover { background: var(--royal-700); }
+  button#submitBtn:disabled { opacity: .6; cursor: default; }
+
+  #formStatus { font-size: .88rem; color: var(--red); }
+
+  #successCard { text-align: center; padding: 60px 24px; }
+  #successCard .badge { display: inline-block; font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; background: var(--green); color: #fff; padding: 5px 10px; border-radius: 5px; font-weight: 600; margin-bottom: 14px; }
+  #successCard h2 { font-family: "Source Serif 4", Georgia, serif; color: var(--navy); font-size: 1.4rem; margin-bottom: 8px; }
+  #successCard p { color: var(--muted); margin-bottom: 20px; }
+  #successCard button { background: var(--surface); border: 1px solid var(--line); color: var(--navy); border-radius: 999px; padding: 11px 24px; font-family: inherit; font-weight: 600; cursor: pointer; }
+
+  footer.site-footer { max-width: 900px; margin: 0 auto; padding: 20px 28px 50px; display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .78rem; }
+  footer.site-footer img { height: 20px; width: auto; opacity: .8; }
+
+  @media (max-width: 600px) {
+    .item-row { flex-direction: column; align-items: flex-start; }
+    .item-controls { width: 100%; justify-content: space-between; }
+    .pill-group { flex: 1 1 auto; }
+    .pill-group label { flex: 1 1 auto; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <img class="mark" src="https://container-supply-company.github.io/CSC-Employee-Information-HUB/csc-mark.png" alt="Container Supply logo">
+      <div class="wordmark">
+        <div class="co">Container Supply</div>
+        <div class="hub">Forklift Operator Evaluation</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="announce">
+  <div class="announce-card">
+    <span class="badge">Form</span>
+    <div class="body">
+      <strong>No login required.</strong>
+      <span>Complete every section below and submit when finished. Responses are recorded automatically. Tap the speaker icon next to any item to hear it read aloud.</span>
+      <div class="lang-toggle" role="group" aria-label="Audio narration language">
+        <button type="button" class="lang-btn active" data-lang="en">English audio</button>
+        <button type="button" class="lang-btn" data-lang="es">Audio en Español</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <form id="evalForm">
+
+    <div class="section-head">
+      <span class="num">01</span>
+      <h2>Evaluation Details</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="field-label" for="operatorName">Operator being evaluated, first and last name <span class="req">*</span></label>
+        <input type="text" id="operatorName" name="operatorName" required>
+      </div>
+      <div class="field">
+        <label class="field-label" for="evalDate">Today's date <span class="req">*</span></label>
+        <input type="date" id="evalDate" name="evalDate" required>
+      </div>
+    </div>
+
+    <div id="checklistSections"></div>
+
+    <div class="section-head">
+      <span class="num" id="certNum">07</span>
+      <h2>Certification</h2>
+      <span class="rule"></span>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="field-label">Based on this evaluation, the operator has successfully completed the evaluation and is qualified to operate the following equipment: <span class="req">*</span></label>
+        <div class="checkbox-row">
+          <input type="checkbox" id="equipForklift" name="qualifiedEquipment" value="Fork Lift" required>
+          <label for="equipForklift">Fork Lift</label>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="evaluatorName">Evaluator first and last name <span class="req">*</span></label>
+        <input type="text" id="evaluatorName" name="evaluatorName" required>
+      </div>
+    </div>
+
+    <div class="submit-bar">
+      <button type="submit" id="submitBtn">Submit Evaluation</button>
+      <span id="formStatus" hidden></span>
+    </div>
+  </form>
+
+  <div id="successCard" class="card" hidden>
+    <span class="badge">Submitted</span>
+    <h2>Evaluation recorded</h2>
+    <p>Thanks — this evaluation has been saved.</p>
+    <button type="button" onclick="location.reload()">Submit another evaluation</button>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <img src="https://container-supply-company.github.io/CSC-Employee-Information-HUB/csc-mark.png" alt="Container Supply">
+  <span>Container Supply Co. &middot; Internal use only</span>
+</footer>
+
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+<script>
+  // ---- Configuration -------------------------------------------------
+  // Only used when this page is hosted somewhere other than Apps Script
+  // (e.g. GitHub Pages). Set this to your deployed Apps Script Web App
+  // "exec" URL. See README.md for how to get this value.
+  const WEB_APP_URL = "https://script.google.com/a/macros/cscmfg.com/s/AKfycbzPr_duyrBnhnL6NMpT19--5TYf-9aLxOjOrM00KbbMJAOQbHK4D8eRQkGNI5fAco6F/exec";
+
+  // Where the audio/ folder lives. Leave as "audio/" if index.html and the
+  // audio/ folder are hosted together (e.g. GitHub Pages). If this page is
+  // instead served from Apps Script, Apps Script can't serve a plain audio/
+  // folder over relative paths — host audio/ on GitHub Pages regardless and
+  // point this at its full URL instead, e.g.
+  // "https://yourname.github.io/your-repo/audio/". See README.md.
+  const AUDIO_BASE_URL = "audio/";
+
+  // ---- Checklist content ----------------------------------------------
+  // Order here must match the QUESTIONS array in Code.gs.
+  const SECTIONS = [
+    {
+      title: "Picking Up a Load",
+      items: [
+        "Square up on the center of the load.",
+        "Level the forks; then slowly drive forward until the load contacts the carriage.",
+        "Lift the load carefully and smoothly until it is clear.",
+        "Tilt the mast back slightly to stabilize the load.",
+        "Look over both shoulders.",
+      ],
+    },
+    {
+      title: "Traveling",
+      items: [
+        "After out and stopped, lower the load to travel height.",
+        "Do not raise or lower the load and forks while traveling.",
+        "Maintain a safe speed.",
+        "Observe all traffic rules, warning signs, floor load limits and overhead clearances.",
+        "Keep arms and legs inside the forklift.",
+        "Follow other vehicles at safe distance.",
+        "Slow down when cornering.",
+        "Use the horn to alert others.",
+        "Travel with the load facing uphill while on a ramp or incline.",
+      ],
+    },
+    {
+      title: "Placing the Load",
+      items: [
+        "Stop smoothly.",
+        "Make sure there is sufficient clearance for the load.",
+        "Clear personnel from the area near the load.",
+        "Square up to the location; then stop about 1 foot away.",
+        "Raise the load to placement level.",
+        "Move slowly forward.",
+        "If the load is on a pallet, lower it into position and lower the forks further.",
+        "Look over both shoulders before backing out.",
+        "Back straight out until the forks have cleared.",
+      ],
+    },
+    {
+      title: "Dismounting & Parking",
+      items: [
+        "Lower the forks to traveling position.",
+        "Fully lower the forks.",
+        "Neutralize the controls.",
+        "Set the brakes.",
+        "Turn off the power.",
+        "If parked on an incline, block the wheels.",
+        "Park only in authorized areas.",
+      ],
+    },
+    {
+      title: "Safety & Housekeeping",
+      items: [
+        "Engine off.",
+        "Fire extinguisher nearby.",
+        "Proper personal protective equipment worn.",
+        "Safe fueling and battery recharging procedures followed.",
+        "Spills cleaned up immediately.",
+      ],
+    },
+  ];
+
+  const RATINGS = [
+    { value: "GOOD", cls: "pill-good" },
+    { value: "FAIR", cls: "pill-fair" },
+    { value: "POOR", cls: "pill-poor" },
+    { value: "N/A", cls: "pill-na" },
+  ];
+
+  // ---- Audio narration --------------------------------------------------
+  // Clips live in audio/qN_en.<ext> and audio/qN_es.<ext>. Defaults to
+  // English; the toggle in the intro card switches AUDIO_LANG.
+  let AUDIO_LANG = "en";
+  const AUDIO_DEFAULT_EXT = { es: "wav", en: "wav" };
+  const AUDIO_EXT_OVERRIDES = { es: { 5: "mp3" }, en: { 23: "mp3" } };
+
+  function audioSrcFor(n, lang) {
+    const ext = AUDIO_EXT_OVERRIDES[lang]?.[n] || AUDIO_DEFAULT_EXT[lang];
+    return `${AUDIO_BASE_URL}q${n}_${lang}.${ext}`;
+  }
+
+  const ICON_SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="4 8 4 16 9 16 14 20 14 4 9 8 4 8" fill="currentColor" stroke="none"></polygon><path d="M17.5 8.5a5 5 0 0 1 0 7"></path></svg>';
+  const ICON_STOP = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"></rect></svg>';
+
+  const audioPlayer = new Audio();
+  let currentAudioBtn = null;
+
+  function setAudioBtnState(btn, playing) {
+    btn.classList.toggle("playing", playing);
+    btn.innerHTML = playing ? ICON_STOP : ICON_SPEAKER;
+  }
+
+  function stopCurrentAudio() {
+    if (currentAudioBtn) setAudioBtnState(currentAudioBtn, false);
+    currentAudioBtn = null;
+    audioPlayer.pause();
+  }
+
+  audioPlayer.addEventListener("ended", stopCurrentAudio);
+  audioPlayer.addEventListener("error", () => {
+    if (currentAudioBtn) console.error("Audio failed to load:", audioPlayer.src);
+    stopCurrentAudio();
+  });
+
+  function toggleAudio(n, btn) {
+    const wasThisBtn = currentAudioBtn === btn;
+    stopCurrentAudio();
+    if (wasThisBtn) return; // clicking the currently-playing button just stops it
+    audioPlayer.src = audioSrcFor(n, AUDIO_LANG);
+    audioPlayer.play().catch((err) => console.error("Audio playback failed:", err));
+    currentAudioBtn = btn;
+    setAudioBtnState(btn, true);
+  }
+
+  function buildChecklist() {
+    const container = document.getElementById("checklistSections");
+    let qIndex = 0;
+    let sectionNum = 2;
+    SECTIONS.forEach((section) => {
+      const head = document.createElement("div");
+      head.className = "section-head";
+      head.innerHTML = `<span class="num">${String(sectionNum).padStart(2, "0")}</span><h2>${section.title}</h2><span class="rule"></span>`;
+      container.appendChild(head);
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      section.items.forEach((text) => {
+        qIndex += 1;
+        const itemNum = qIndex; // capture this iteration's value — closures below must not read the shared loop variable
+        const name = "q" + itemNum;
+        const row = document.createElement("div");
+        row.className = "item-row";
+
+        const label = document.createElement("div");
+        label.className = "item-label";
+        label.innerHTML = `<span class="item-num">${itemNum}.</span>${text}`;
+        row.appendChild(label);
+
+        const controls = document.createElement("div");
+        controls.className = "item-controls";
+
+        const audioBtn = document.createElement("button");
+        audioBtn.type = "button";
+        audioBtn.className = "audio-btn";
+        audioBtn.innerHTML = ICON_SPEAKER;
+        audioBtn.setAttribute("aria-label", `Play audio for item ${itemNum}`);
+        audioBtn.addEventListener("click", () => toggleAudio(itemNum, audioBtn));
+        controls.appendChild(audioBtn);
+
+        const group = document.createElement("div");
+        group.className = "pill-group";
+        RATINGS.forEach((r) => {
+          const id = name + "_" + r.value.replace("/", "");
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = name;
+          input.id = id;
+          input.value = r.value;
+          input.required = true;
+          const lbl = document.createElement("label");
+          lbl.htmlFor = id;
+          lbl.className = r.cls;
+          lbl.textContent = r.value;
+          group.appendChild(input);
+          group.appendChild(lbl);
+        });
+        controls.appendChild(group);
+        row.appendChild(controls);
+        card.appendChild(row);
+      });
+
+      container.appendChild(card);
+      sectionNum += 1;
+    });
+    document.getElementById("certNum").textContent = String(sectionNum).padStart(2, "0");
+  }
+  buildChecklist();
+
+  document.querySelectorAll(".lang-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.classList.contains("active")) return;
+      AUDIO_LANG = btn.dataset.lang;
+      document.querySelectorAll(".lang-btn").forEach((b) => b.classList.toggle("active", b === btn));
+      stopCurrentAudio();
+    });
+  });
+
+  // ---- Submission -------------------------------------------------------
+  const form = document.getElementById("evalForm");
+  const statusEl = document.getElementById("formStatus");
+  const submitBtn = document.getElementById("submitBtn");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+
+    statusEl.hidden = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting…";
+
+    const data = collectFormData();
+    const runningInAppsScript = typeof google !== "undefined" && google.script && google.script.run;
+
+    if (runningInAppsScript) {
+      google.script.run
+        .withSuccessHandler(onSubmitSuccess)
+        .withFailureHandler(onSubmitError)
+        .submitEvaluation(data);
+    } else {
+      submitViaHiddenIframe(data);
+    }
+  });
+
+  function collectFormData() {
+    const fd = new FormData(form);
+    const obj = {};
+    for (const [k, v] of fd.entries()) obj[k] = v;
+    return obj;
+  }
+
+  function submitViaHiddenIframe(data) {
+    if (!WEB_APP_URL || WEB_APP_URL.indexOf("PASTE_YOUR") === 0) {
+      onSubmitError(new Error("This form isn't connected to a submission endpoint yet — see README.md."));
+      return;
+    }
+    const iframe = document.getElementById("hidden_iframe");
+    let settled = false;
+    iframe.onload = function () {
+      if (settled) return;
+      settled = true;
+      onSubmitSuccess();
+    };
+    const tempForm = document.createElement("form");
+    tempForm.method = "POST";
+    tempForm.action = WEB_APP_URL;
+    tempForm.target = "hidden_iframe";
+    tempForm.style.display = "none";
+    Object.entries(data).forEach(([k, v]) => {
+      const input = document.createElement("input");
+      input.name = k;
+      input.value = v;
+      tempForm.appendChild(input);
+    });
+    document.body.appendChild(tempForm);
+    tempForm.submit();
+    tempForm.remove();
+  }
+
+  function onSubmitSuccess() {
+    form.hidden = true;
+    document.getElementById("successCard").hidden = false;
+  }
+
+  function onSubmitError(err) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Evaluation";
+    statusEl.hidden = false;
+    statusEl.textContent = "Something went wrong submitting this evaluation. Please try again. " + (err && err.message ? err.message : "");
+  }
+</script>
+</body>
+</html>
