@@ -18,6 +18,25 @@ Three things do the work:
 You need `Code.gs` deployed as an Apps Script Web App either way — it's what
 actually records responses. `index.html` can then be hosted two ways.
 
+> **Important — use a personal Google account, not a `cscmfg.com` one.**
+> Many Google Workspace domains (including `cscmfg.com`) have an admin-level
+> sharing policy that removes "Anyone" from the "Who has access" dropdown
+> entirely — you'll only see "Only myself" or "Anyone within cscmfg.com".
+> That's the same policy that made the original Google Form require a
+> login, and it applies to Apps Script deployments too, with no per-user
+> override. The fix: create and deploy this Apps Script project from a
+> personal (non-Workspace) Google account instead — its deployments aren't
+> subject to `cscmfg.com`'s policy, so "Anyone" becomes selectable. The
+> resulting Sheet of responses will live in that personal account's Drive,
+> not `cscmfg.com`-managed storage — share it with the relevant `cscmfg.com`
+> people/set up a periodic export if that matters for recordkeeping.
+>
+> When switching accounts mid-setup in the same browser, the authorization
+> step can fail with "Sorry, unable to open the file at this time" if a
+> `cscmfg.com` session is still active alongside the personal one. Use a
+> separate browser or a dedicated Chrome profile signed into only the
+> personal account to avoid it.
+
 ## 1. Deploy the Apps Script backend (required either way)
 
 1. Go to [script.google.com](https://script.google.com) → **New project**.
